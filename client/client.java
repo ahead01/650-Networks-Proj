@@ -43,10 +43,12 @@ public class Client
         catch(UnknownHostException u)
         {
             System.out.println(u);
+            System.exit(0);
         }
         catch(IOException i)
         {
             System.out.println(i);
+            System.exit(0);
         }
 
 
@@ -64,7 +66,13 @@ public class Client
         }
     }
 
+    public static int min(int x, int y) {
+        if(x < y) {
+            return x;
+        }
+        return y;
 
+    }
 
     public static void main(String args[])
     {
