@@ -13,7 +13,7 @@ public class Client
     private String y;
 
     // constructor to put ip address and port
-    public Client(String w, int port, String x, String y)
+    public Client(String w, int port, int x, int y)
     {
         //
         int bytes = min(x, 1460);
@@ -23,16 +23,17 @@ public class Client
         // establish a connection
         try
         {
-            socket = new Socket(127.0.0.1, port);
+            socket = new Socket("127.0.0.1", port);
             System.out.println("Connected");
-            String localPort = socket.getLocalPort();
+            int localPort = socket.getLocalPort();
             System.out.println(" On port: " + localPort);
             System.out.println("Enter data to send: ");
 
             // takes input from provided URL
             URLConnection connection = new URL(url).openConnection();
-            ByteArrayInputStream response = new ByteArrayInputStream(byte[] buff);
-            response = connection.getInputStream();
+            byte[] buff = new byte[10000];
+            ByteArrayInputStream response = new ByteArrayInputStream(buff);
+            response = (ByteArrayInputStream) connection.getInputStream();
 
             System.out.println("Bytes: " + buff.length);
             // sends output to the socket
@@ -73,11 +74,11 @@ public class Client
                 "x is an integer, where z=min(x, 1460) is the number of bytes C will send to S in every packet containing w’s page bytes except the last, which will have any remaining bytes in w’s page;\n " +
                 "y is a timeout period in milliseconds. ");
         String w = reader.next();
-        String x = reader.next();
-        String y = reader.next();
+        int x = reader.nextInt();
+        int y = reader.nextInt();
         System.out.println("You entered: " + w + " " + x + " " + y);
         //once finished
         reader.close();
-        Client client = new Client(w, 12321, x, y);
+        Client Client = new Client(w, 12321, x, y);
     }
 }
