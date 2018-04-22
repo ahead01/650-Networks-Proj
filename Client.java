@@ -89,9 +89,10 @@ public class Client {
 	    	byte[] buffer = new byte[bytes];
 	    	long startTimeNs = System.nanoTime();
 	    	long startTimeMs = System.currentTimeMillis();
-	    	int counter = 0;
-	        while (in.read(buffer, 0, buffer.length) != -1) {
-	        	counter++;
+	    	//int counter = 0;
+	    	boolean run = true;
+	        while (in.read(buffer, 0, buffer.length) != -1 && run) {
+	        	//counter++;
 	        	//int retryCount = 0;
 	    		//sb.append(buffer.toString());
 	    		String str = new String(buffer);
@@ -112,6 +113,7 @@ public class Client {
 //				    		byte[] testBuffer = "TEST".getBytes();
 //							DatagramPacket testPacket = new DatagramPacket(testBuffer, testBuffer.length, host,sendPort);
 //							dgSocket.send(testPacket);
+							System.out.println("Confirming timeout set to: " + dgSocket.getSoTimeout() + " ms");
 							dgSocket.send(packet);// - commented for testing - uncomment for real run 
 							buf = new byte[256];
 							respPacket = new DatagramPacket(buf, buf.length);
@@ -122,6 +124,7 @@ public class Client {
 				    		byte[] failBuffer = "FAIL".getBytes();
 							DatagramPacket failPacket = new DatagramPacket(failBuffer, failBuffer.length, host,sendPort);
 							dgSocket.send(failPacket);
+							run = false;
 						}
 				}
 				long endTimeMsSend = System.currentTimeMillis();
@@ -130,7 +133,7 @@ public class Client {
 				long totalPacketTime = endTimeMsSend - startTimeMsSend;
 				System.out.println("recieved packet in: " + totalPacketTime + " ms" );
 				buffer = new byte[bytes];
-				System.out.println("Count: " + counter);
+				//System.out.println("Count: " + counter);
 	    	}
 	        long endTimeNs   = System.nanoTime();
 	        long endTimeMs = System.currentTimeMillis();
