@@ -67,12 +67,12 @@ public class Client {
 	    	con.setRequestMethod("GET");
 	    	
 	    	int status = con.getResponseCode();
-	    	int contentLenght = con.getContentLength();
+	    	long contentLenght = con.getContentLengthLong();
 	    	//byte[] b = new byte[contentLenght];
 	    	String contentType = con.getContentType();
 	    	String contentEncoding = con.getContentEncoding();
-	    	
-	    	System.out.println("Content Length: " + contentLenght);
+	    	System.out.println("GET Request Status: " + status);
+	    	System.out.println("Content Length (char): " + contentLenght);
 	    	System.out.println("Content Type: " + contentType);
 	    	System.out.println("Content Encoding: " + contentEncoding);
 	    	
@@ -80,7 +80,7 @@ public class Client {
 	    	InputStream inputStream = con.getInputStream();
 	    	//Method 1
 	    	DataInputStream in = new DataInputStream(inputStream);
-	    	StringBuffer content = new StringBuffer(contentLenght);
+	    	//StringBuffer content = new StringBuffer(contentLenght);
 	    	
 	    	//Method 2
 	    	//BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
@@ -91,13 +91,14 @@ public class Client {
 	    	long startTimeMs = System.currentTimeMillis();
 	    	//int counter = 0;
 	    	boolean run = true;
+	    	int successfulBytes = 0;
 	        while (in.read(buffer, 0, buffer.length) != -1 && run) {
 	        	//counter++;
 	        	//int retryCount = 0;
 	    		//sb.append(buffer.toString());
 	    		String str = new String(buffer);
 	    		System.out.println(str);
-	    		content.append(str);
+	    		//content.append(str);
 	    		sb.append(str);
 	    		DatagramPacket packet = new DatagramPacket(buffer, buffer.length, host,sendPort);
 				dgSocket.send(packet);
@@ -106,18 +107,21 @@ public class Client {
 				DatagramPacket respPacket = new DatagramPacket(buf, buf.length);
 				try {
 					dgSocket.receive(respPacket);
+					successfulBytes += packet.getData().length;
 				} catch (SocketTimeoutException e) {
 					System.out.println("Response Timeout - ACK not recieved in time! - Re-sending packet");
 						try {
 							// Block for testing - sending packet with TEST as the contents will change server wait to 10 ms
 //				    		byte[] testBuffer = "TEST".getBytes();
-//							DatagramPacket testPacket = new DatagramPacket(testBuffer, testBuffer.length, host,sendPort);
-//							dgSocket.send(testPacket);
-							System.out.println("Confirming timeout set to: " + dgSocket.getSoTimeout() + " ms");
-							dgSocket.send(packet);// - commented for testing - uncomment for real run 
+//							packet = new DatagramPacket(testBuffer, testBuffer.length, host,sendPort);
+//							System.out.println("Testing block is active - sending retry packet of TEST");						
+//							System.out.println("Confirming timeout set to: " + dgSocket.getSoTimeout() + " ms");
+							
+							dgSocket.send(packet);
 							buf = new byte[256];
 							respPacket = new DatagramPacket(buf, buf.length);
 							dgSocket.receive(respPacket);
+							successfulBytes += packet.getData().length; 
 						} catch (SocketTimeoutException e1) {
 							System.out.println("Re-try limit reached, closing socket connection!");
 							System.out.println(e1.getMessage());
@@ -129,9 +133,10 @@ public class Client {
 				}
 				long endTimeMsSend = System.currentTimeMillis();
 				String received = new String(respPacket.getData(), 0, respPacket.getLength());
-				System.out.println("Server response: " + received);
 				long totalPacketTime = endTimeMsSend - startTimeMsSend;
-				System.out.println("recieved packet in: " + totalPacketTime + " ms" );
+				System.out.println("Server response: " + received + " in " + totalPacketTime + " ms");
+				
+				//System.out.println("recieved packet in: " + totalPacketTime + " ms - timeout is " + dgSocket.getSoTimeout() + " ms" );
 				buffer = new byte[bytes];
 				//System.out.println("Count: " + counter);
 	    	}
@@ -141,15 +146,17 @@ public class Client {
 	        long totalTimeMs = endTimeMs - startTimeMs;
 	        System.out.println("DONE");
 	    	in.close();
-	    	System.out.println("Total transfre time in nano seconds: " + totalTimeNs);
-	    	System.out.println("Total transfre time in milli seconds: " + totalTimeMs);
-	    	int contentByteLength = content.toString().getBytes().length;
+	    	System.out.println("Total transfer time in nano seconds: " + totalTimeNs);
+	    	System.out.println("Total transfer time in milli seconds: " + totalTimeMs);
+	    	int contentByteLength = sb.toString().getBytes().length;
 	    	System.out.println("Content Length (bytes): " + contentByteLength);
-	    	System.out.println("Respoonse code: " + status);
-	    	System.out.println("Respoonse text content: " + content.toString());
-	    	System.out.println("Respoonse text sb: " + sb.toString());
+	    	System.out.println("Total Sucessful Bytes Sent: " + successfulBytes );
+	    	//System.out.println("Response code: " + status);
+	    	//System.out.println("Response text content: " + content.toString());
+	    	//System.out.println("Response text sb: " + sb.toString());
 	    	//System.out.println("message: " + msg);
-	        resp = content.toString();
+	        //resp = content.toString();
+	    	resp = sb.toString();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -162,7 +169,6 @@ public class Client {
 		try {
 			dgSocket.send(stopPacket);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	dgSocket.disconnect();
@@ -186,7 +192,7 @@ public class Client {
         Client myClient =new Client();
         myClient.startConnection("127.0.0.1",12321,w,x,y);
         String response = myClient.sendMessage();
-        System.out.println("Response: " + response);
+        System.out.println("Message Selivered to Server: " + response);
         System.out.println("Finished running - closing the socket and stopping the server");
         myClient.stopConnection();
     }
