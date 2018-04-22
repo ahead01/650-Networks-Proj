@@ -25,8 +25,10 @@ public class Server {
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 				//System.out.println("Waiting for next packet ");
 				serverSocket.receive(request);
+				
 				byte[] data = request.getData();
-				totalBytes += data.length;
+				//totalBytes += data.length;
+				totalBytes += request.getLength();
 				String requestStr = new String(data, 0, request.getLength());
 				
 				// Printing in a separate thread
