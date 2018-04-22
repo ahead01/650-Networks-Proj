@@ -1,6 +1,15 @@
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
+
+/*
+ * Author: Austin Dase - 4/20/2018
+ * This is the Client for COSC 650, Computer Networks Project
+ * Instructor: Dr. Alexander L. Wijesinha
+ * Group Paper Topic: QUIC
+ * 
+ * */
+
 public class Client {
 	private DatagramSocket dgSocket;
 	private int sendPort;
@@ -80,7 +89,9 @@ public class Client {
 	    	byte[] buffer = new byte[bytes];
 	    	long startTimeNs = System.nanoTime();
 	    	long startTimeMs = System.currentTimeMillis();
+	    	int counter = 0;
 	        while (in.read(buffer, 0, buffer.length) != -1) {
+	        	counter++;
 	        	//int retryCount = 0;
 	    		//sb.append(buffer.toString());
 	    		String str = new String(buffer);
@@ -118,6 +129,8 @@ public class Client {
 				System.out.println("Server response: " + received);
 				long totalPacketTime = endTimeMsSend - startTimeMsSend;
 				System.out.println("recieved packet in: " + totalPacketTime + " ms" );
+				buffer = new byte[bytes];
+				System.out.println("Count: " + counter);
 	    	}
 	        long endTimeNs   = System.nanoTime();
 	        long endTimeMs = System.currentTimeMillis();
@@ -170,7 +183,7 @@ public class Client {
         Client myClient =new Client();
         myClient.startConnection("127.0.0.1",12321,w,x,y);
         String response = myClient.sendMessage();
-        System.out.println(response);
+        System.out.println("Response: " + response);
         System.out.println("Finished running - closing the socket and stopping the server");
         myClient.stopConnection();
     }

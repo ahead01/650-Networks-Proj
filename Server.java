@@ -1,6 +1,13 @@
 import java.net.*;
 import java.io.*;
-
+/*
+ * Author: Austin Dase - 4/20/2018
+ * This is the Server for COSC 650, Computer Networks Project
+ * Instructor: Dr. Alexander L. Wijesinha
+ * Group Paper Topic: QUIC
+ * 
+ * */
+ 
 public class Server {
 	//private ServerSocket serverSocket;
 	private DatagramSocket serverSocket;
@@ -16,12 +23,19 @@ public class Server {
 			while(true) {
 				byte[] buffer = new byte[256];
 				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-				System.out.println("Waiting for next packet ");
+				//System.out.println("Waiting for next packet ");
 				serverSocket.receive(request);
 				byte[] data = request.getData();
 				totalBytes += data.length;
 				String requestStr = new String(data, 0, request.getLength());
-				System.out.println(requestStr);
+				
+				// Printing in a separate thread
+				new Thread(new Runnable() {
+				     public void run() {
+				    	 	System.out.println(requestStr);
+				     }
+				}).start();
+
 				if(requestStr.toString().equalsIgnoreCase("STOP")) {
 					System.out.println("Recieved STOP message - closing socket");
 					serverSocket.close();
