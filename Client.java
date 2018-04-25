@@ -116,7 +116,7 @@ public class Client {
 //							packet = new DatagramPacket(testBuffer, testBuffer.length, host,sendPort);
 //							System.out.println("Testing block is active - sending retry packet of TEST");						
 //							System.out.println("Confirming timeout set to: " + dgSocket.getSoTimeout() + " ms");
-							
+//							
 							dgSocket.send(packet);
 							buf = new byte[256];
 							respPacket = new DatagramPacket(buf, buf.length);
@@ -129,6 +129,7 @@ public class Client {
 							DatagramPacket failPacket = new DatagramPacket(failBuffer, failBuffer.length, host,sendPort);
 							dgSocket.send(failPacket);
 							run = false;
+							break;
 						}
 				}
 				long endTimeMsSend = System.currentTimeMillis();
